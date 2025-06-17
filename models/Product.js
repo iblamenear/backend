@@ -1,10 +1,28 @@
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
-  name: String,
-  price: Number,
-  image: String,
-  description: String
+  name: {
+    type: String,
+    required: true
+  },
+  price: {
+    type: Number, // harga per unit (misalnya per 100 gram)
+    required: true
+  },
+  unit: {
+    type: String,
+    enum: ['gram', '100g', 'kg'],
+    default: '100g',
+    required: true
+  },
+  image: {
+    type: String, // URL gambar
+    required: true
+  },
+  description: {
+    type: String,
+    required: true
+  }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);
