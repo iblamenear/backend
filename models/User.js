@@ -18,17 +18,26 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  address: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  phone: {
+    type: String,
+    required: true,
+    trim: true
+  },
   role: {
     type: String,
-    enum: ['user', 'admin'],
+    enum: ['user', 'admin', 'kurir'],
     default: 'user'
   }
 }, { timestamps: true });
 
-// Hash password sebelum save
-userSchema.pre('save', async function(next) {
+userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
-  
+
   try {
     const salt = await bcrypt.genSalt(10);
     this.password = await bcrypt.hash(this.password, salt);
@@ -38,8 +47,7 @@ userSchema.pre('save', async function(next) {
   }
 });
 
-// Method untuk cek password
-userSchema.methods.comparePassword = async function(candidatePassword) {
+userSchema.methods.comparePassword = async function (candidatePassword) {
   return await bcrypt.compare(candidatePassword, this.password);
 };
 

@@ -20,7 +20,19 @@ const transactionSchema = new mongoose.Schema({
   total: { type: Number, required: true },
   midtransToken: { type: String, required: true },
   midtransOrderId: { type: String, required: true, unique: true },
-  transactionStatus: { type: String, default: 'pending', enum: ['pending', 'settlement', 'cancel', 'deny', 'expire', 'failure', 'refund'] },
+  transactionStatus: {
+    type: String,
+    default: 'pending',
+    enum: ['pending', 'settlement', 'cancel', 'deny', 'expire', 'failure', 'refund']
+  },
+
+  // ✅ Tambahkan ini
+  statusPengiriman: {
+    type: String,
+    enum: ['pesanan_diterima', 'diproses', 'dikirim', 'sampai'],
+    default: 'pesanan_diterima'
+  }
+
 }, { timestamps: true });
 
 module.exports = mongoose.model('Transaction', transactionSchema);
