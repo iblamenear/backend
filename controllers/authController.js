@@ -1,9 +1,9 @@
 const User = require('../models/User');
-const Transaction = require('../models/Transaction'); // ✅ tambahkan ini
+const Transaction = require('../models/Transaction');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 
-// 🔐 REGISTER (khusus user biasa, bukan admin/kurir)
+// 🔐 REGISTER (khusus user biasa)
 exports.register = async (req, res) => {
   try {
     const { name, email, password, address, phone } = req.body;
@@ -17,7 +17,7 @@ exports.register = async (req, res) => {
       password,
       address,
       phone,
-      role: 'user' // default role
+      role: 'user' // default
     });
 
     await newUser.save();
@@ -28,35 +28,58 @@ exports.register = async (req, res) => {
   }
 };
 
-// 🔐 LOGIN (semua role)
-exports.login = async (req, res) => {
+// 🔐 LOGIN USER (khusus role user)
+exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'Email tidak ditemukan' });
 
+    if (user.role !== 'user') {
+      return res.status(403).json({ message: 'Akun ini bukan akun user biasa' });
+    }
+
     const isMatch = await user.comparePassword(password);
     if (!isMatch) return res.status(401).json({ message: 'Password salah' });
 
-    // Buat token berisi role + email
     const token = jwt.sign(
-      {
-        userId: user._id,
-        role: user.role,
-        email: user.email
-      },
+      { userId: user._id, role: user.role, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: '7d' }
     );
 
-    res.json({
-      token,
-      role: user.role,
-      email: user.email
-    });
+    res.json({ token, role: user.role, email: user.email });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Login user error:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan server' });
+  }
+};
+
+// 🔐 LOGIN ADMIN (khusus role admin)
+exports.loginAdmin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'Email tidak ditemukan' });
+
+    if (user.role !== 'admin') {
+      return res.status(403).json({ message: 'Akun ini bukan admin' });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) return res.status(401).json({ message: 'Password salah' });
+
+    const token = jwt.sign(
+      { userId: user._id, role: user.role, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({ token, role: user.role, email: user.email });
+  } catch (error) {
+    console.error('Login admin error:', error);
     res.status(500).json({ message: 'Terjadi kesalahan server' });
   }
 };
@@ -130,7 +153,7 @@ exports.resetPassword = async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'Email tidak ditemukan' });
 
-    user.password = newPassword; // akan di-hash otomatis oleh pre-save hook
+    user.password = newPassword; // akan di-hash otomatis
     await user.save();
 
     res.json({ message: 'Password berhasil direset' });
@@ -140,7 +163,7 @@ exports.resetPassword = async (req, res) => {
   }
 };
 
-// ✅ GET ALL USERS (khusus admin) + TRANSAKSINYA
+// ✅ GET ALL USERS + TRANSAKSINYA (admin only)
 exports.getAllUsersWithTransactions = async (req, res) => {
   try {
     const users = await User.find({ role: 'user' }).select('-password');

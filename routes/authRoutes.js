@@ -2,18 +2,20 @@ const express = require('express');
 const router = express.Router();
 const {
   register,
-  login,
+  loginUser,
+  loginAdmin,
   getProfile,
   updateAddress,
   resetPassword,
   checkEmail,
-  getAllUsersWithTransactions // ✅ fungsi tambahan
+  getAllUsersWithTransactions
 } = require('../controllers/authController');
 
 const { protect, admin } = require('../middleware/authMiddleware');
 
 router.post('/register', register);
-router.post('/login', login);
+router.post('/login-user', loginUser);   // ✅ login khusus user
+router.post('/login-admin', loginAdmin); // ✅ login khusus admin
 router.get('/profile', protect, getProfile);
 router.put('/update-address', protect, updateAddress);
 router.put('/reset-password', resetPassword);
