@@ -21,9 +21,9 @@ const main = async () => {
       useUnifiedTopology: true
     });
 
-    console.log('\n🚚 Pembuatan Akun Admin\n');
+    console.log('\n🚚 Pembuatan Akun Kurir\n');
 
-    const name = await ask('Nama Admin: ');
+    const name = await ask('Nama Kurir: ');
     const email = await ask('Email: ');
     const password = await ask('Password: ');
     const address = await ask('Alamat: ');
@@ -31,7 +31,7 @@ const main = async () => {
 
     const existingCourier = await User.findOne({ email });
     if (existingCourier) {
-      console.log('\n❌ Admin dengan email ini sudah terdaftar.\n');
+      console.log('\n❌ Kurir dengan email ini sudah terdaftar.\n');
       rl.close();
       return;
     }
@@ -42,7 +42,7 @@ const main = async () => {
       password,
       address,
       phone,
-      role: 'admin'
+      role: 'kurir'
     });
 
     await newCourier.save();

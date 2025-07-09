@@ -84,6 +84,34 @@ exports.loginAdmin = async (req, res) => {
   }
 };
 
+// 🔐 LOGIN COURIER (khusus role kurir)
+exports.loginCourier = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'Email tidak ditemukan' });
+
+    if (user.role !== 'kurir') {
+      return res.status(403).json({ message: 'Akun ini bukan kurir' });
+    }
+
+    const isMatch = await user.comparePassword(password);
+    if (!isMatch) return res.status(401).json({ message: 'Password salah' });
+
+    const token = jwt.sign(
+      { userId: user._id, role: user.role, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({ token, role: user.role, email: user.email });
+  } catch (error) {
+    console.error('Login kurir error:', error);
+    res.status(500).json({ message: 'Terjadi kesalahan server' });
+  }
+};
+
 // 👤 GET PROFILE
 exports.getProfile = async (req, res) => {
   try {

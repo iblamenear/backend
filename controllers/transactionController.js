@@ -42,10 +42,10 @@ const updateShippingStatus = async (req, res) => {
   }
 };
 
-// ✅ Admin ambil semua user beserta transaksi mereka
+// Admin ambil semua user beserta transaksi mereka
 const getAllUsersWithTransactions = async (req, res) => {
   try {
-    const users = await User.find({}, 'name email phone'); // ambil info dasar user
+    const users = await User.find({}, 'name email phone');
 
     const results = await Promise.all(
       users.map(async (user) => {
@@ -64,8 +64,25 @@ const getAllUsersWithTransactions = async (req, res) => {
   }
 };
 
+// Kurir ambil transaksi aktif (belum sampai) + info user
+const getTransactionsForCourier = async (req, res) => {
+  try {
+    const transactions = await Transaction.find({
+      statusPengiriman: { $ne: 'sampai' }
+    })
+      .populate('userId', 'name email phone address')
+      .sort({ createdAt: -1 });
+
+    res.json(transactions);
+  } catch (err) {
+    console.error('❌ Gagal ambil transaksi kurir:', err);
+    res.status(500).json({ message: 'Gagal memuat transaksi untuk kurir' });
+  }
+};
+
 module.exports = {
   getUserTransactions,
   updateShippingStatus,
-  getAllUsersWithTransactions // ✅ Export baru untuk frontend admin
+  getAllUsersWithTransactions,
+  getTransactionsForCourier
 };

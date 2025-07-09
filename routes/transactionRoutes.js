@@ -3,13 +3,14 @@ const router = express.Router();
 const {
   getUserTransactions,
   updateShippingStatus,
-  getAllUsersWithTransactions
+  getAllUsersWithTransactions,
+  getTransactionsForCourier
 } = require('../controllers/transactionController');
 
 const {
   protect,
-  adminOrCourier,
-  admin
+  admin,
+  adminOrCourier
 } = require('../middleware/authMiddleware');
 
 // ✅ Ambil histori transaksi user login
@@ -20,5 +21,8 @@ router.put('/status/:id', protect, adminOrCourier, updateShippingStatus);
 
 // ✅ Ambil semua user + transaksi mereka (khusus admin)
 router.get('/all-users', protect, admin, getAllUsersWithTransactions);
+
+// ✅ Ambil transaksi aktif untuk kurir
+router.get('/for-courier', protect, adminOrCourier, getTransactionsForCourier);
 
 module.exports = router;
