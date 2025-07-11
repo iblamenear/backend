@@ -25,12 +25,29 @@ const transactionSchema = new mongoose.Schema({
     default: 'pending',
     enum: ['pending', 'settlement', 'cancel', 'deny', 'expire', 'failure', 'refund']
   },
-
-  // ✅ Tambahkan ini
   statusPengiriman: {
     type: String,
     enum: ['pesanan_diterima', 'diproses', 'dikirim', 'sampai'],
     default: 'pesanan_diterima'
+  },
+  selesaiOlehUser: {
+    type: Boolean,
+    default: false
+  },
+
+  // ✅ Tambahan untuk fitur komplain
+  komplain: {
+    type: Boolean,
+    default: false
+  },
+  returDisetujui: {
+    type: Boolean,
+    default: undefined
+  },
+   returStatus: {
+    type: String,
+    enum: ['disetujui', 'kurir_menjemput', 'diperiksa', 'selesai'],
+    default: undefined
   }
 
 }, { timestamps: true });

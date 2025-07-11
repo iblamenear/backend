@@ -19,6 +19,11 @@ const productSchema = new mongoose.Schema({
     type: String, // URL gambar
     required: true
   },
+  category: {
+    type: String,
+    enum: ['Daging', 'Ayam & Bebek', 'Seafood', 'Produk Olahan'], // ✅ kategori dibatasi
+    required: true
+  },
   description: {
     type: String,
     required: true
